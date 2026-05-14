@@ -28,27 +28,35 @@
 set -euo pipefail
 
 # ── Configuration ─────────────────────────────────────────────────────
-BACKUP_DIR="${1:-/var/backups/buttercup}"
+# First arg: backup output directory. Default points at the user's home
+# so a non-root cron job can write to it without sudo.
+BACKUP_DIR="${1:-${HOME}/backups/buttercup}"
 KEEP_DAYS="${2:-7}"
 
-# Docker compose project name (folder name by default). If your project
-# was started with `docker compose -p somename up`, set PROJECT_NAME.
-PROJECT_NAME="${PROJECT_NAME:-beadandók}"
+# Docker compose project name. Read from the compose file's `name:`
+# directive (buttercup) — overridable via env var for one-off testing.
+PROJECT_NAME="${PROJECT_NAME:-buttercup}"
 MYSQL_SERVICE="${MYSQL_SERVICE:-mysql}"
 
-# ── Resolve the .env so we can read MYSQL_DATABASE / MYSQL_ROOT_PASSWORD
-# Looks for .env in the parent directory of this script (the repo root),
-# then in the current working directory as a fallback.
+# ── Resolve project root + .env ───────────────────────────────────────
+# Walking up from the script's location (.../scripts/backup-db.sh) gives
+# the repo root, which is where docker-compose.yml + .env live. Cd into
+# it so `docker compose` can find the compose file via cwd — that means
+# the `-p` flag below isn't strictly required, but we keep it as a belt-
+# and-braces guarantee regardless of how the script was invoked.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${PROJECT_ROOT}"
+
 ENV_FILE=""
-for candidate in "${SCRIPT_DIR}/../.env" "./.env"; do
+for candidate in "${PROJECT_ROOT}/.env" "./.env"; do
     if [ -f "${candidate}" ]; then
         ENV_FILE="${candidate}"
         break
     fi
 done
 if [ -z "${ENV_FILE}" ]; then
-    echo "[backup] FATAL: could not find a .env file (looked in script dir and CWD)" >&2
+    echo "[backup] FATAL: could not find a .env file in ${PROJECT_ROOT} or CWD" >&2
     exit 2
 fi
 
