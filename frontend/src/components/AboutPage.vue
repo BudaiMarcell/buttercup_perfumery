@@ -52,71 +52,68 @@
       </div>
     </section>
 
+    <!--
+      Story + Sustainability sections were a two-column layout with
+      "Your image here" placeholders next to the text. Until we have
+      real photography, the cleanest read is a single centred column
+      with editorial-style margins. The narrow max-width keeps each
+      line at a comfortable reading length (~60–75 characters).
+    -->
     <section class="about-story" id="story">
       <div class="container-xl">
-        <div class="row g-5 align-items-center">
-          <div class="col-lg-6">
-            <div class="story-img-placeholder">
-              <span>Your image here</span>
-            </div>
-          </div>
-          <div class="col-lg-6 story-text">
-            <p class="section-eyebrow">— The Beginning</p>
-            <h2 class="section-title">Where it all started</h2>
-            <p>
-              Boglárka Varga, CEO of Buttercup Perfumery, began fantasising
-              about creating her dream products in 2023 — and now they can be
-              all yours too. Since then we have come a long way: in 2026 we were
-              awarded <em>Small Company of the Year</em>
-              and have been noticed by numerous supporters across Europe.
-            </p>
-            <p>
-              We plan to expand this year by opening three new shops where you
-              can participate in workshops and experience our all-year and
-              seasonal scents in person. You can currently find us in Budapest
-              and Milan, and we ship worldwide.
-            </p>
-            <p>
-              We chose to remain on the handmade and small-batch side of
-              business — which means our carbon footprint is the smallest
-              compared to competitors worldwide. Every product, every bottle,
-              every decision is made with purpose.
-            </p>
-          </div>
+        <div class="about-prose mx-auto text-center">
+          <p class="section-eyebrow">— The Beginning</p>
+          <h2 class="section-title mb-3">Where it all started</h2>
+          <span class="about-divider" aria-hidden="true">✦</span>
+        </div>
+        <div class="about-prose mx-auto story-text">
+          <p>
+            Boglárka Varga, CEO of Buttercup Perfumery, began fantasising
+            about creating her dream products in 2023 — and now they can be
+            all yours too. Since then we have come a long way: in 2026 we
+            were awarded <em>Small Company of the Year</em>
+            and have been noticed by numerous supporters across Europe.
+          </p>
+          <p>
+            We plan to expand this year by opening three new shops where you
+            can participate in workshops and experience our all-year and
+            seasonal scents in person. You can currently find us in Budapest
+            and Milan, and we ship worldwide.
+          </p>
+          <p>
+            We chose to remain on the handmade and small-batch side of
+            business — which means our carbon footprint is the smallest
+            compared to competitors worldwide. Every product, every bottle,
+            every decision is made with purpose.
+          </p>
         </div>
       </div>
     </section>
 
     <section class="about-sustainability" id="sustainability">
       <div class="container-xl">
-        <div class="row g-5 align-items-center">
-          <div class="col-lg-6 order-lg-2">
-            <div class="story-img-placeholder">
-              <span>Your image here</span>
-            </div>
-          </div>
-          <div class="col-lg-6 order-lg-1 story-text">
-            <p class="section-eyebrow">— Our Products</p>
-            <h2 class="section-title">More than a scent</h2>
-            <p>
-              Perfumes tend to be drying for the skin — but not ours. Our
-              fragrances are made to nourish the skin simultaneously, so you
-              achieve an irresistible scent and genuine care in one. The same
-              philosophy applies to our body care range, with perfume-free
-              versions available for those sensitive to scents.
-            </p>
-            <p>
-              All of our nail care and hand care products come in both scented
-              and unscented versions. Our silicone and sulfate free haircare
-              line lets your hair reach its full potential and forget damage —
-              while keeping things simple. No unreadable ingredient lists: we
-              use clean, effective components across everything we make.
-            </p>
-            <div class="sustain-badges d-flex flex-wrap gap-3 mt-4">
-              <span class="sustain-badge" v-for="b in badges" :key="b">{{
-                b
-              }}</span>
-            </div>
+        <div class="about-prose mx-auto text-center">
+          <p class="section-eyebrow">— Our Products</p>
+          <h2 class="section-title mb-3">More than a scent</h2>
+          <span class="about-divider" aria-hidden="true">✦</span>
+        </div>
+        <div class="about-prose mx-auto story-text">
+          <p>
+            Perfumes tend to be drying for the skin — but not ours. Our
+            fragrances are made to nourish the skin simultaneously, so you
+            achieve an irresistible scent and genuine care in one. The same
+            philosophy applies to our body care range, with perfume-free
+            versions available for those sensitive to scents.
+          </p>
+          <p>
+            All of our nail care and hand care products come in both scented
+            and unscented versions. Our silicone and sulfate free haircare
+            line lets your hair reach its full potential and forget damage —
+            while keeping things simple. No unreadable ingredient lists: we
+            use clean, effective components across everything we make.
+          </p>
+          <div class="sustain-badges d-flex flex-wrap gap-3 mt-4 justify-content-center">
+            <span class="sustain-badge" v-for="b in badges" :key="b">{{ b }}</span>
           </div>
         </div>
       </div>
@@ -309,29 +306,43 @@ export default {
 
 .about-story,
 .about-sustainability {
-  padding: 100px 0;
+  padding: 80px 0;
   border-top: 1px solid rgba(156, 159, 136, 0.15);
 }
 
-.story-img-placeholder {
-  width: 100%;
-  height: 420px;
-  background: linear-gradient(135deg, var(--beige-light), var(--sage-light));
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  color: var(--text-light);
+/* Editorial-style centred prose column. The narrow max-width keeps
+   each line at a comfortable reading length (~60-75 chars at 16px)
+   and the centre alignment of the heading block gives a magazine
+   feel — works better than left-aligned text floating in space
+   without an image counterweight. */
+.about-prose {
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+.about-prose:last-child {
+  margin-bottom: 0;
+}
+
+/* A small dusty-rose glyph between the title and body text. Acts as
+   a section break — cheap to render, breaks the visual monotony of
+   pure text after we removed the image. */
+.about-divider {
+  display: block;
+  font-size: 18px;
+  color: var(--dusty-rose);
+  margin: 4px auto 28px;
+  letter-spacing: 0.4em;
 }
 
 .story-text p {
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 16px;
+  line-height: 1.85;
   color: var(--text-mid);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+.story-text p:last-of-type {
+  margin-bottom: 0;
 }
 
 .about-team {
