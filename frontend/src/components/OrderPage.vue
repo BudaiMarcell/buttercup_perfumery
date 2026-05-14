@@ -2,7 +2,10 @@
   <div class="order-page">
     <div class="container-xl">
 
-      <div class="order-header d-flex align-items-center gap-3 mb-5">
+      <!-- mb-3 (16px) instead of mb-5 (48px): we want the order
+           summary card on the right to be visible above the fold
+           when the page loads. -->
+      <div class="order-header d-flex align-items-center gap-3 mb-3">
         <button class="back-btn d-flex align-items-center gap-2" @click="$emit('go-back')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
           Back

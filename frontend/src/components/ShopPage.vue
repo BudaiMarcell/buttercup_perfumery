@@ -53,17 +53,6 @@
               </div>
 
 
-              <div class="filter-group">
-                <h5 class="filter-label">Sort By</h5>
-                <select class="filter-select w-100" v-model="sortBy">
-                  <option value="default">Featured</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="name">Name A–Z</option>
-                </select>
-              </div>
-
-
               <button class="reset-btn w-100 mt-2" @click="resetFilters" v-if="isFiltered">
                 Clear all filters
               </button>
@@ -76,8 +65,24 @@
         <div class="col-12 col-lg-9">
 
 
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <p class="results-count mb-0">{{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'fragrance' : 'fragrances' }}</p>
+          <!-- Header row above the product grid: result count on the
+               left, Sort dropdown on the right. Sort moved up here from
+               the sidebar so it's always visible (the sidebar pushed it
+               below the fold on shorter viewports). -->
+          <div class="d-flex justify-content-between align-items-center mb-4 gap-2 flex-wrap">
+            <p class="results-count mb-0">
+              {{ filteredProducts.length }}
+              {{ filteredProducts.length === 1 ? 'fragrance' : 'fragrances' }}
+            </p>
+            <label class="sort-by-inline d-flex align-items-center gap-2 mb-0">
+              <span class="sort-by-label">Sort by</span>
+              <select class="sort-by-select" v-model="sortBy">
+                <option value="default">Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name">Name A–Z</option>
+              </select>
+            </label>
           </div>
 
 

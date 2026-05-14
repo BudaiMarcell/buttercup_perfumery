@@ -1476,6 +1476,38 @@ body {
 .empty-results {
   color: var(--text-light);
 }
+
+/* Inline "Sort by" dropdown that lives next to the result count above
+   the product grid. Visually de-emphasised vs. the sidebar filters —
+   it's a refinement of an already-filtered list, not a primary filter. */
+.sort-by-inline {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-light);
+}
+.sort-by-label {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sort-by-select {
+  background: var(--white-warm);
+  border: 1px solid rgba(156, 159, 136, 0.4);
+  border-radius: 3px;
+  padding: 6px 28px 6px 10px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-dark);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b5d48' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.18s;
+}
+.sort-by-select:focus {
+  outline: none;
+  border-color: var(--dusty-rose);
+}
 .empty-icon {
   font-size: 52px;
   display: block;
@@ -1537,7 +1569,10 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 .order-page {
-  padding-top: 100px;
+  /* 84px = navbar height 72 + 12 breathing room. Was 100, which left
+     too much air below the navbar and pushed the sticky order summary
+     out of the initial viewport. */
+  padding-top: 84px;
   padding-bottom: 80px;
   min-height: 100vh;
   background: var(--white-warm);
@@ -1671,10 +1706,13 @@ select.form-input { cursor: pointer; }
 .bank-note { font-size: 14px; color: var(--text-light); line-height: 1.6; margin: 0; }
 /* Place order button */
 .place-order-btn { padding: 16px; font-size: 15px; letter-spacing: .2em; }
-/* ── Order Summary ── */
+/* ── Order Summary ──
+   Sticky offset matches the order-page padding-top (84px) so the
+   summary card pins right below the fixed navbar with the same
+   small gap, instead of leaving a desktop-sized gap above it. */
 .order-summary {
   position: sticky;
-  top: 90px;
+  top: 84px;
   background: #fff;
   border: 1px solid rgba(156, 159, 136, 0.2);
   border-radius: 4px;
