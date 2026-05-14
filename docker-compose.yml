@@ -20,7 +20,10 @@ x-api-env: &api-env
   APP_ENV: production
   APP_KEY: ${APP_KEY}
   APP_DEBUG: "false"
-  APP_URL: http://api.buttercupperfumery.local
+  # Falls back to the local-dev hostname so `docker compose up` on
+  # your laptop still works. Production overrides via .env on the VPS
+  # to point at the real Cloudflare-fronted domain.
+  APP_URL: ${APP_URL:-http://api.buttercupperfumery.local}
   APP_TIMEZONE: Europe/Budapest
   LOG_CHANNEL: stack
   LOG_LEVEL: info
@@ -50,8 +53,13 @@ x-api-env: &api-env
   MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@buttercupperfumery.local}
   MAIL_FROM_NAME: Buttercup Perfumery
 
-  SANCTUM_STATEFUL_DOMAINS: buttercupperfumery.local
-  FRONTEND_URL: http://buttercupperfumery.local
+  # Domains Laravel Sanctum accepts cookie-based auth from. Comma-
+  # separated. In production this MUST include the public site hostname
+  # so the CSRF middleware doesn't reject browser sessions.
+  SANCTUM_STATEFUL_DOMAINS: ${SANCTUM_STATEFUL_DOMAINS:-buttercupperfumery.local}
+  # Used by Mailables (verify-email link, password-reset link, etc.)
+  # to construct absolute URLs back to the SPA.
+  FRONTEND_URL: ${FRONTEND_URL:-http://buttercupperfumery.local}
 
   TRACKING_API_KEY: ${TRACKING_KEY:-}
 
@@ -87,7 +95,11 @@ services:
     image: buttercup-web:dev
     container_name: buttercup-web
     environment:
-      API_URL: http://api.buttercupperfumery.local/api
+      # API_URL gets baked into /usr/share/nginx/html/config.js at
+      # container boot (see frontend/docker/docker-entrypoint.sh).
+      # That URL is what the browser hits — so in production it must
+      # be the public HTTPS URL, NOT the internal docker hostname.
+      API_URL: ${PUBLIC_API_URL:-http://api.buttercupperfumery.local/api}
       SENTRY_DSN: ${SENTRY_DSN_FRONTEND:-}
       TRACKING_KEY: ${TRACKING_KEY:-}
     networks:
