@@ -1,0 +1,52 @@
+// ─────────────────────────────────────────────────────────────────────
+// Custom Bootstrap 5 build — only the modules we actually use.
+//
+// The full Bootstrap CSS bundle is ~190 KB minified; this trimmed
+// build comes in around ~50–60 KB because we drop:
+//   - components we never render (accordion, alert, badge, breadcrumb,
+//     button-group, buttons, card, carousel, close, dropdown, forms,
+//     images, list-group, modal, offcanvas, pagination, placeholders,
+//     popover, progress, spinners, tables, toast, tooltip, type)
+//   - all CSS for them, including their utility-API contributions
+//
+// What we keep, and where it's used:
+//   reboot           reset (base typography, box-sizing)
+//   containers       .container-xl in every page header
+//   grid             .row / .col-* in product grids, footer
+//   nav, navbar      site header
+//   transitions      .fade for verify-banner + cookie-banner animations
+//   helpers          .position-* etc. used in App.vue layout
+//   utilities/api    d-flex, mt-*, p-*, text-*, gap-* etc. used everywhere
+//
+// If a future feature needs e.g. modals, append `@import "modal"`
+// here and rebuild. Cheaper than going back to the full bundle.
+// ─────────────────────────────────────────────────────────────────────
+
+// Required scaffolding — these don't emit CSS, they just set up
+// Bootstrap's SCSS environment (variables, mixins, the utility-API).
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+// Core CSS
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+
+// Layout
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+
+// Components we actually use
+@import "bootstrap/scss/nav";
+@import "bootstrap/scss/navbar";
+@import "bootstrap/scss/transitions";
+
+// Helpers (e.g. .position-absolute, .visually-hidden, .stretched-link)
+@import "bootstrap/scss/helpers";
+
+// Utilities API — must come LAST so it can generate all the
+// .d-flex / .mt-2 / .text-center / .gap-3 classes the templates use.
+@import "bootstrap/scss/utilities/api";

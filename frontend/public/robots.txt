@@ -1,0 +1,18 @@
+# Buttercup Perfumery — robots.txt
+# Allow everything except the customer-account area (no SEO value, may
+# expose order data via prefetchers) and the auth pages (no value
+# crawled either). Disallow the api host entirely via the host directive
+# the dockerized nginx handles separately.
+
+User-agent: *
+Allow: /
+Disallow: /account/
+Disallow: /login
+Disallow: /reset-password
+Disallow: /checkout
+
+# Tell crawlers where the sitemap lives. Caddy/Traefik strip the
+# scheme/host when proxying, so an absolute URL here works both in
+# local dev (http://buttercupperfumery.local) and production
+# (https://buttercupperfumery.hu).
+Sitemap: /sitemap.xml

@@ -1,0 +1,210 @@
+name: buttercup
+
+# ── Networks ──
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+# ── Volumes ──
+volumes:
+  mysql-data:
+  redis-data:
+  api-storage:
+  api-public:
+
+# ── Shared API env ──
+x-api-env: &api-env
+  APP_NAME: Buttercup
+  APP_ENV: production
+  APP_KEY: ${APP_KEY}
+  APP_DEBUG: "false"
+  APP_URL: http://api.buttercupperfumery.local
+  APP_TIMEZONE: Europe/Budapest
+  LOG_CHANNEL: stack
+  LOG_LEVEL: info
+
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: ${MYSQL_DATABASE:-parfum}
+  DB_USERNAME: ${MYSQL_USER:-parfum}
+  DB_PASSWORD: ${MYSQL_PASSWORD}
+
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_CLIENT: phpredis
+
+  CACHE_STORE: redis
+  SESSION_DRIVER: redis
+  SESSION_LIFETIME: "120"
+  QUEUE_CONNECTION: redis
+
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  MAIL_HOST: ${MAIL_HOST:-}
+  MAIL_PORT: ${MAIL_PORT:-587}
+  MAIL_USERNAME: ${MAIL_USERNAME:-}
+  MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+  MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-tls}
+  MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@buttercupperfumery.local}
+  MAIL_FROM_NAME: Buttercup Perfumery
+
+  SANCTUM_STATEFUL_DOMAINS: buttercupperfumery.local
+  FRONTEND_URL: http://buttercupperfumery.local
+
+  TRACKING_API_KEY: ${TRACKING_KEY:-}
+
+  SENTRY_LARAVEL_DSN: ${SENTRY_LARAVEL_DSN:-}
+
+x-api-build: &api-build
+  context: ./api
+  dockerfile: Dockerfile
+
+services:
+  # ── Reverse proxy ──
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: buttercup-proxy
+    depends_on:
+      web:
+        condition: service_started
+      nginx-api:
+        condition: service_started
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - frontend
+    restart: unless-stopped
+
+  # ── Vue static site ──
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: buttercup-web:dev
+    container_name: buttercup-web
+    environment:
+      API_URL: http://api.buttercupperfumery.local/api
+      SENTRY_DSN: ${SENTRY_DSN_FRONTEND:-}
+      TRACKING_KEY: ${TRACKING_KEY:-}
+    networks:
+      - frontend
+    restart: unless-stopped
+
+  # ── nginx in front of php-fpm ──
+  nginx-api:
+    image: nginx:1.27-alpine
+    container_name: buttercup-nginx-api
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - ./api/docker/nginx/laravel.conf:/etc/nginx/conf.d/default.conf:ro
+      - api-public:/var/www/public:ro
+    networks:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  # ── Laravel php-fpm ──
+  api:
+    build: *api-build
+    image: parfum-api:dev
+    container_name: buttercup-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      <<: *api-env
+    volumes:
+      - api-storage:/var/www/storage
+      - api-public:/var/www/public
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "php", "artisan", "about"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ── Queue worker ──
+  queue:
+    image: parfum-api:dev
+    container_name: buttercup-queue
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *api-env
+      SKIP_MIGRATIONS: "1"
+    command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+    volumes:
+      - api-storage:/var/www/storage
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # ── Scheduler ──
+  scheduler:
+    image: parfum-api:dev
+    container_name: buttercup-scheduler
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *api-env
+      SKIP_MIGRATIONS: "1"
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - api-storage:/var/www/storage
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # ── MySQL ──
+  mysql:
+    image: mysql:8.0
+    container_name: buttercup-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-parfum}
+      MYSQL_USER: ${MYSQL_USER:-parfum}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command:
+      - --default-authentication-plugin=caching_sha2_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ── Redis ──
+  redis:
+    image: redis:7-alpine
+    container_name: buttercup-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped

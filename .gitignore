@@ -1,0 +1,35 @@
+# Root-level gitignore for the beadandók/ Docker Compose bundle.
+# Subfolder .gitignore files (api/, frontend/, wpf/) handle their own
+# tool-specific build artifacts; this file covers the cross-cutting
+# stuff that lives at the repo root.
+
+# ── Secrets — NEVER commit ───────────────────────────────────────────
+# Docker Compose reads .env at the repo root for MYSQL_PASSWORD,
+# MAIL_PASSWORD, TRACKING_KEY, APP_KEY etc. .env.example is the
+# committed template.
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ── IDE / editor scratch ─────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── OS ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs & local backups ─────────────────────────────────────────────
+*.log
+/scripts/*.sql
+/scripts/*.sql.gz
+/var/backups/
+
+# ── Big binary artifacts that occasionally end up in /dokumentacio ──
+# Keep the markdown / mermaid / png diagram sources; skip transient
+# dumps that get regenerated.
+/dokumentacio/database-dump.sql.gz

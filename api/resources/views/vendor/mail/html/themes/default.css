@@ -1,0 +1,390 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Buttercup Perfumery — email theme
+   ─────────────────────────────────────────────────────────────────────
+   Overrides Laravel's default mail/html/themes/default.css. Color names
+   mirror the website's CSS custom properties in frontend/src/style.css
+   so the email looks like a continuation of the brand, not a generic
+   transactional template.
+
+   Palette
+     --dusty-rose       #b9676b   (primary CTA, accent line, links)
+     --sage             #a3a380   (success state, secondary accent)
+     --beige            #cfb586   (divider lines)
+     --beige-light      #e8d5b0   (subtle borders)
+     --white-warm       #faf6ee   (page background)
+     --text-dark        #2a2518
+     --text-light       #6b5d48
+
+   Typography
+     Headings  → Cormorant Garamond (serif, falls back to Georgia)
+     Body      → Inter (sans, falls back to Helvetica/Arial)
+   ───────────────────────────────────────────────────────────────────── */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: none;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #faf6ee;
+    color: #2a2518;
+    height: 100%;
+    line-height: 1.55;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.65;
+    text-align: left;
+}
+
+p {
+    font-size: 15px;
+    margin: 0 0 14px;
+}
+
+a {
+    color: #b9676b;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+a img {
+    border: none;
+}
+
+/* ── Typography ─────────────────────────────────────────────────── */
+
+h1 {
+    color: #2a2518;
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-size: 30px;
+    font-weight: 400;
+    margin: 0 0 18px;
+    text-align: left;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #2a2518;
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    font-size: 21px;
+    font-weight: 500;
+    margin: 28px 0 12px;
+    text-align: left;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #2a2518;
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    font-size: 17px;
+    font-weight: 500;
+    margin: 20px 0 10px;
+    text-align: left;
+}
+
+strong {
+    color: #2a2518;
+}
+
+/* ── Layout wrappers ────────────────────────────────────────────── */
+
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #faf6ee;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+
+.header {
+    padding: 40px 0 12px;
+    text-align: center;
+}
+
+.header a {
+    color: #2a2518;
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.header .logo-mark {
+    color: #b9676b;
+    font-size: 22px;
+    margin-right: 12px;
+    vertical-align: -2px;
+    letter-spacing: 0;
+}
+
+/* Thin sage hairline under the header — a botanical touch */
+.header-divider {
+    text-align: center;
+    padding: 4px 0 28px;
+}
+
+.header-divider hr {
+    border: 0;
+    border-top: 1px solid #cfb586;
+    margin: 0 auto;
+    width: 72px;
+}
+
+/* ── Body card ──────────────────────────────────────────────────── */
+
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #faf6ee;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 600px;
+    background-color: #ffffff;
+    border: 1px solid #e8d5b0;
+    border-radius: 6px;
+    margin: 0 auto;
+    padding: 0;
+    width: 600px;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 44px 48px 40px;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 32px auto;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 999px;
+    color: #ffffff !important;
+    display: inline-block;
+    overflow: hidden;
+    text-decoration: none !important;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.button-primary,
+.button-blue {
+    background-color: #b9676b;
+    border-top: 12px solid #b9676b;
+    border-right: 24px solid #b9676b;
+    border-bottom: 12px solid #b9676b;
+    border-left: 24px solid #b9676b;
+}
+
+.button-success,
+.button-green {
+    background-color: #a3a380;
+    border-top: 12px solid #a3a380;
+    border-right: 24px solid #a3a380;
+    border-bottom: 12px solid #a3a380;
+    border-left: 24px solid #a3a380;
+}
+
+.button-error,
+.button-red {
+    background-color: #a44a4a;
+    border-top: 12px solid #a44a4a;
+    border-right: 24px solid #a44a4a;
+    border-bottom: 12px solid #a44a4a;
+    border-left: 24px solid #a44a4a;
+}
+
+/* ── Panels (used by `mail::panel` — e.g. coupon code box) ─────── */
+
+.panel {
+    border-left: 3px solid #b9676b;
+    margin: 24px 0;
+}
+
+.panel-content {
+    background-color: #faf6ee;
+    color: #2a2518;
+    padding: 18px 22px;
+}
+
+.panel-content p {
+    color: #2a2518;
+    margin: 6px 0;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* ── Tables (used in order confirmation) ────────────────────────── */
+
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 28px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #e8d5b0;
+    color: #6b5d48;
+    font-family: 'Inter', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin: 0;
+    padding: 0 0 10px;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.table td {
+    border-bottom: 1px solid #f3ead6;
+    color: #2a2518;
+    font-family: 'Inter', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 12px 0;
+}
+
+/* ── Subcopy (fine print under the body) ────────────────────────── */
+
+.subcopy {
+    border-top: 1px solid #e8d5b0;
+    margin-top: 32px;
+    padding-top: 18px;
+}
+
+.subcopy p {
+    color: #6b5d48;
+    font-size: 12px;
+    line-height: 1.55;
+    word-break: break-all;
+}
+
+.subcopy a {
+    word-break: break-all;
+}
+
+/* ── Promotion box ──────────────────────────────────────────────── */
+
+.promotion {
+    background-color: #faf6ee;
+    border: 1px dashed #cfb586;
+    margin: 28px 0;
+    padding: 28px 24px;
+    width: 100%;
+}
+
+.promotion h1 {
+    text-align: center;
+    margin: 0 0 8px;
+}
+
+.promotion p {
+    font-size: 15px;
+    text-align: center;
+    margin: 0;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 600px;
+    margin: 0 auto;
+    padding: 24px 0 36px;
+    text-align: center;
+    width: 600px;
+}
+
+.footer p {
+    color: #6b5d48;
+    font-size: 11px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+
+.footer a {
+    color: #6b5d48;
+    text-decoration: underline;
+}
+
+/* ── Responsive (single-column on phones) ───────────────────────── */
+
+@media only screen and (max-width: 640px) {
+    .inner-body {
+        width: 100% !important;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+    .footer {
+        width: 100% !important;
+    }
+    .content-cell {
+        padding: 32px 24px !important;
+    }
+    h1 { font-size: 26px !important; }
+    h2 { font-size: 19px !important; }
+}
+
+@media only screen and (max-width: 480px) {
+    .button {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}

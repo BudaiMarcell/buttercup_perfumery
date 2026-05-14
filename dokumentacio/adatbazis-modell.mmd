@@ -1,0 +1,153 @@
+erDiagram
+    users ||--o{ orders            : "rendelései"
+    users ||--o{ addresses         : "címei"
+    users ||--o{ wishlists         : "kedvencek"
+    users ||--o{ payment_methods   : "kártyái"
+    users ||--o{ analytics_sessions: "munkamenetek"
+    users ||--o{ audit_logs        : "naplóbejegyzések"
+
+    categories ||--o{ categories   : "alkategóriák"
+    categories ||--o{ products     : "termékek"
+
+    products   ||--o{ product_images: "képek"
+    products   ||--o{ order_items   : "tételek"
+    products   ||--o{ wishlists     : "kívánságlistán"
+    products   ||--o{ events        : "események"
+
+    addresses  ||--o{ orders        : "szállítás"
+
+    orders     ||--o{ order_items   : "tételek"
+
+    analytics_sessions ||--o{ events: "események"
+
+    users {
+        bigint    id PK
+        string    name
+        string    email UK
+        string    phone
+        string    password
+        timestamp email_verified_at
+        timestamp created_at
+    }
+
+    admins {
+        bigint   id PK
+        string   name
+        string   email UK
+        string   password
+        string   role
+    }
+
+    categories {
+        bigint   id PK
+        bigint   parent_id FK
+        string   name
+        string   slug UK
+        text     description
+        boolean  is_active
+    }
+
+    products {
+        bigint   id PK
+        bigint   category_id FK
+        string   name
+        string   slug UK
+        decimal  price
+        int      stock_quantity
+        smallint volume_ml
+        enum     gender
+        boolean  is_active
+        timestamp deleted_at
+    }
+
+    product_images {
+        bigint   id PK
+        bigint   product_id FK
+        string   image_url
+        boolean  is_primary
+    }
+
+    addresses {
+        bigint   id PK
+        bigint   user_id FK
+        string   label
+        string   country
+        string   city
+        string   zip_code
+        string   street
+        boolean  is_default
+    }
+
+    orders {
+        bigint   id PK
+        bigint   user_id FK
+        bigint   address_id FK
+        enum     status
+        decimal  total_amount
+        string   payment_method
+        enum     payment_status
+        text     notes
+    }
+
+    order_items {
+        bigint   id PK
+        bigint   order_id FK
+        bigint   product_id FK
+        int      quantity
+        decimal  unit_price
+        decimal  subtotal
+    }
+
+    wishlists {
+        bigint   id PK
+        bigint   user_id FK
+        bigint   product_id FK
+    }
+
+    payment_methods {
+        bigint   id PK
+        bigint   user_id FK
+        string   brand
+        string   last_four
+        tinyint  exp_month
+        smallint exp_year
+        boolean  is_default
+    }
+
+    coupons {
+        bigint   id PK
+        string   coupon_code UK
+        enum     discount_type
+        decimal  discount_value
+        date     expiry_date
+        int      usage_limit
+        int      used_count
+        boolean  is_active
+    }
+
+    analytics_sessions {
+        string   id PK
+        bigint   user_id FK
+        string   ip_address
+        enum     device_type
+        boolean  is_new_visitor
+        timestamp started_at
+    }
+
+    events {
+        bigint   id PK
+        string   session_id FK
+        bigint   product_id FK
+        enum     event_type
+        string   page_url
+        json     meta
+    }
+
+    audit_logs {
+        bigint   id PK
+        bigint   user_id FK
+        string   action
+        string   model_type
+        bigint   model_id
+        json     changes
+    }
