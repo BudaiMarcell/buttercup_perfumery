@@ -1916,3 +1916,166 @@ select.form-input { cursor: pointer; }
 .fade-tab-enter-active, .fade-tab-leave-active { transition: opacity .2s, transform .2s; }
 .fade-tab-enter-from { opacity: 0; transform: translateY(8px); }
 .fade-tab-leave-to   { opacity: 0; transform: translateY(-8px); }
+
+
+/* ─────────────────────────────────────────────────────────────────────
+   MOBILE OPTIMIZATIONS
+   ─────────────────────────────────────────────────────────────────────
+   Single block at the end of the stylesheet that tightens layout
+   below 992 / 768 / 576 px viewports. Override-only — never
+   introduces new layouts, just refines what's already there. Easy
+   to bisect if a regression appears.
+
+   Breakpoints (Bootstrap-aligned):
+     ≤ 991.98px  — tablets and below
+     ≤ 767.98px  — phones (landscape) and below
+     ≤ 575.98px  — phones (portrait), the smallest viewports
+   ───────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 991.98px) {
+  /* Sticky sidebars in account + shop pages make sense on a tall
+     desktop monitor, but on a tablet/phone they pin to the viewport
+     and eat scrollable real estate. Disable sticky below the lg
+     breakpoint and let them flow naturally above the content. */
+  .account-nav,
+  .shop-sidebar {
+    position: static;
+    top: auto;
+  }
+  .shop-sidebar {
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* ── Hero ────────────────────────────────────────────────────────
+     min-vh-100 + py-5 on the hero row reserves a full screen height
+     plus 96px of padding — on a 700px-tall phone that's mostly empty
+     space, pushing the bottle visual below the fold. Let the row
+     size itself naturally instead. */
+  .hero .min-vh-100 {
+    min-height: auto !important;
+    padding-top: 84px !important;   /* clear the fixed navbar */
+    padding-bottom: 40px !important;
+  }
+  .hero-title  { margin-bottom: 20px; }
+  .hero-sub    { margin-bottom: 28px; }
+
+  /* ── Primary CTAs ────────────────────────────────────────────────
+     Thumb-friendly: full-width buttons are easier to tap one-handed.
+     The .cta-primary / .checkout-btn classes are the main CTAs
+     across hero, cart drawer, and account pages. */
+  .cta-primary,
+  .checkout-btn {
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+
+  /* ── Forms: defeat iOS Safari auto-zoom ──────────────────────────
+     iOS zooms the viewport when you focus an input whose font is
+     <16px, which mangles the whole layout. Bumping the base
+     font-size to 16px is the recognised workaround. */
+  .form-input,
+  .filter-search,
+  .filter-select,
+  .filter-check span,
+  .nl-form input,
+  .orders-search,
+  .orders-status-filter {
+    font-size: 16px;
+  }
+
+  /* ── Section vertical rhythm ────────────────────────────────────
+     The big sections (.feature-banner, .testimonials, .newsletter)
+     use py-5 (48px each side) which makes them feel oversized on a
+     short viewport. Tighten to 36px. */
+  .feature-banner,
+  .testimonials,
+  .newsletter {
+    padding-top: 36px !important;
+    padding-bottom: 36px !important;
+  }
+
+  /* ── Order page: tighter section cards ──────────────────────────
+     Default 28px padding × 2 sides = 56px wasted on a 360px phone. */
+  .order-section          { padding: 18px; }
+  .order-section-title    { font-size: 17px; gap: 10px; margin-bottom: 16px; }
+  .order-section-title .step-num {
+    width: 24px;
+    height: 24px;
+    font-size: 13px;
+  }
+
+  /* ── Account content card ───────────────────────────────────────
+     Same logic as .order-section. */
+  .account-content { padding: 18px; }
+  .account-form    { gap: 12px; }
+
+  /* ── Footer ─────────────────────────────────────────────────────
+     Bootstrap stacks the columns below md automatically; we just
+     need to compress the vertical air around them. */
+  .footer { padding-top: 36px !important; padding-bottom: 24px !important; }
+
+  /* ── Drawer (cart + profile) ────────────────────────────────────
+     drawer-panel is already max-width:100vw, but the inner padding
+     was tuned for desktop. Reduce so content fits without scroll. */
+  .drawer-header  { padding: 20px 20px 16px; }
+  .drawer-items   { padding: 8px 20px; }
+  .drawer-footer  { padding: 16px 20px 24px; }
+  .drawer-title   { font-size: 19px; }
+
+  /* ── Auth page card ─────────────────────────────────────────────
+     The login/register/forgot-password card had desktop-tuned
+     padding that wrapped awkwardly on a 360-wide screen. */
+  .auth-page { padding: 32px 12px; }
+}
+
+@media (max-width: 575.98px) {
+  /* ── Hero typography ────────────────────────────────────────────
+     clamp(52px,8vw,96px) for hero-title is fine for tablets but the
+     8vw still produces ~30px on a 375 wide iPhone, which gets the
+     line-break in an ugly place. Force a tighter cap here. */
+  .hero-title  { font-size: clamp(40px, 11vw, 56px); }
+  .hero-sub    { font-size: 15px; }
+
+  /* ── Section titles across pages ────────────────────────────────
+     `.section-title` is shared between hero, shop, about, etc.
+     Cap it tighter on phones for the same line-break reason. */
+  .section-title { font-size: clamp(28px, 7vw, 36px); }
+  .nl-title      { font-size: clamp(28px, 7vw, 36px); }
+
+  /* ── Feature cards: tighter inner padding ────────────────────── */
+  .feature-card { padding: 16px !important; }
+
+  /* ── Cookie banner: stack buttons vertically ────────────────────
+     Horizontal layout has them fighting for space with the body
+     text, often clipping the "Decline" label. Stack and full-width. */
+  .cookie-banner {
+    bottom: 12px;
+    width: calc(100% - 24px);
+    padding: 14px 16px;
+  }
+  .cookie-banner .d-flex.flex-column.flex-sm-row,
+  .cookie-banner .d-flex.gap-2 {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  .cookie-accept,
+  .cookie-decline {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ── Profile/cart drawer: full viewport width ───────────────────
+     The 380px panel max-width: 100vw produces a sliver of overlay
+     on the left when the viewport is exactly 380px. Force 100vw. */
+  .drawer-panel { width: 100vw; max-width: 100vw; }
+
+  /* ── Modal padding ──────────────────────────────────────────────
+     .simple-modal at 36px padding × 2 leaves only ~280px of content
+     width on a 360px viewport. Tighten. */
+  .simple-modal { padding: 24px 20px; }
+  .modal-backdrop-simple { padding: 12px; }
+}
