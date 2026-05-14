@@ -2027,8 +2027,17 @@ select.form-input { cursor: pointer; }
 
   /* ── Auth page card ─────────────────────────────────────────────
      The login/register/forgot-password card had desktop-tuned
-     padding that wrapped awkwardly on a 360-wide screen. */
-  .auth-page { padding: 32px 12px; }
+     padding (120px top) that wrapped awkwardly on a 360-wide
+     screen. Trim sides + bottom but KEEP enough top padding to
+     clear the 72px fixed navbar — using the `padding` shorthand
+     here would clobber padding-top and let the navbar overlap the
+     "BUTTERCUP" wordmark on the card. */
+  .auth-page {
+    padding-top: 100px;
+    padding-right: 12px;
+    padding-bottom: 40px;
+    padding-left: 12px;
+  }
 }
 
 @media (max-width: 575.98px) {
