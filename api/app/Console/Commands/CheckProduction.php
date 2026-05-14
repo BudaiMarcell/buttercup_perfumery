@@ -70,15 +70,15 @@ class CheckProduction extends Command
 
         $env = config('app.env');
         if ($env === 'production') {
-            $this->pass("APP_ENV = production");
+            $this->reportPass("APP_ENV = production");
         } else {
-            $this->warn_("APP_ENV = {$env} (expected 'production')");
+            $this->reportWarn("APP_ENV = {$env} (expected 'production')");
         }
 
         if (config('app.debug') === true) {
-            $this->fail("APP_DEBUG is TRUE — leaks stack traces to users");
+            $this->reportFail("APP_DEBUG is TRUE — leaks stack traces to users");
         } else {
-            $this->pass("APP_DEBUG = false");
+            $this->reportPass("APP_DEBUG = false");
         }
     }
 
@@ -88,18 +88,18 @@ class CheckProduction extends Command
 
         $key = config('app.key');
         if (empty($key)) {
-            $this->fail("APP_KEY is empty — encrypted cookies and signed URLs will break");
+            $this->reportFail("APP_KEY is empty — encrypted cookies and signed URLs will break");
         } elseif (str_starts_with($key, 'base64:') && strlen($key) >= 50) {
-            $this->pass("APP_KEY looks well-formed");
+            $this->reportPass("APP_KEY looks well-formed");
         } else {
-            $this->warn_("APP_KEY is set but format looks unusual: {$key}");
+            $this->reportWarn("APP_KEY is set but format looks unusual: {$key}");
         }
 
         $url = config('app.url');
         if (str_starts_with((string) $url, 'http://localhost')) {
-            $this->warn_("APP_URL = {$url} (still pointing at localhost)");
+            $this->reportWarn("APP_URL = {$url} (still pointing at localhost)");
         } else {
-            $this->pass("APP_URL = {$url}");
+            $this->reportPass("APP_URL = {$url}");
         }
     }
 
@@ -110,34 +110,34 @@ class CheckProduction extends Command
         try {
             DB::connection()->getPdo();
             DB::select('SELECT 1');
-            $this->pass("MySQL is reachable");
+            $this->reportPass("MySQL is reachable");
         } catch (\Throwable $e) {
-            $this->fail("MySQL: " . $e->getMessage());
+            $this->reportFail("MySQL: " . $e->getMessage());
         }
 
         try {
             $reply = Redis::connection()->ping();
             if ($reply === true || $reply === '+PONG' || $reply === 'PONG') {
-                $this->pass("Redis is reachable");
+                $this->reportPass("Redis is reachable");
             } else {
-                $this->warn_("Redis PING returned unexpected reply: " . var_export($reply, true));
+                $this->reportWarn("Redis PING returned unexpected reply: " . var_export($reply, true));
             }
         } catch (\Throwable $e) {
-            $this->fail("Redis: " . $e->getMessage());
+            $this->reportFail("Redis: " . $e->getMessage());
         }
 
         $queue = config('queue.default');
         if ($queue === 'sync') {
-            $this->fail("QUEUE_CONNECTION = sync — mails block the request thread in prod");
+            $this->reportFail("QUEUE_CONNECTION = sync — mails block the request thread in prod");
         } else {
-            $this->pass("QUEUE_CONNECTION = {$queue}");
+            $this->reportPass("QUEUE_CONNECTION = {$queue}");
         }
 
         $cache = config('cache.default');
         if ($cache === 'array') {
-            $this->fail("CACHE_STORE = array — every request starts with an empty cache");
+            $this->reportFail("CACHE_STORE = array — every request starts with an empty cache");
         } else {
-            $this->pass("CACHE_STORE = {$cache}");
+            $this->reportPass("CACHE_STORE = {$cache}");
         }
     }
 
@@ -147,18 +147,18 @@ class CheckProduction extends Command
 
         $mailer = config('mail.default');
         if ($mailer === 'log') {
-            $this->warn_("MAIL_MAILER = log — outgoing mail goes to storage/logs/laravel.log, never to recipients");
+            $this->reportWarn("MAIL_MAILER = log — outgoing mail goes to storage/logs/laravel.log, never to recipients");
         } elseif ($mailer === 'array') {
-            $this->fail("MAIL_MAILER = array — mail is discarded entirely (test mode)");
+            $this->reportFail("MAIL_MAILER = array — mail is discarded entirely (test mode)");
         } else {
-            $this->pass("MAIL_MAILER = {$mailer}");
+            $this->reportPass("MAIL_MAILER = {$mailer}");
         }
 
         $from = config('mail.from.address');
         if (empty($from) || str_ends_with((string) $from, '.local')) {
-            $this->warn_("MAIL_FROM_ADDRESS = {$from} (looks like a placeholder)");
+            $this->reportWarn("MAIL_FROM_ADDRESS = {$from} (looks like a placeholder)");
         } else {
-            $this->pass("MAIL_FROM_ADDRESS = {$from}");
+            $this->reportPass("MAIL_FROM_ADDRESS = {$from}");
         }
     }
 
@@ -168,38 +168,42 @@ class CheckProduction extends Command
 
         $tracking = env('TRACKING_API_KEY');
         if (empty($tracking)) {
-            $this->fail("TRACKING_API_KEY is empty — frontend analytics will be silently dropped");
+            $this->reportFail("TRACKING_API_KEY is empty — frontend analytics will be silently dropped");
         } else {
-            $this->pass("TRACKING_API_KEY is set");
+            $this->reportPass("TRACKING_API_KEY is set");
         }
 
         $dbPw = env('DB_PASSWORD');
         if (in_array($dbPw, ['', 'password', 'root', 'change-me-app-password', 'change-me-root-password'], true)) {
-            $this->fail("DB_PASSWORD looks like a placeholder");
+            $this->reportFail("DB_PASSWORD looks like a placeholder");
         } else {
-            $this->pass("DB_PASSWORD is set");
+            $this->reportPass("DB_PASSWORD is set");
         }
     }
 
     // ── Output helpers ─────────────────────────────────────────────
+    // NOTE: prefixed with "report" because Laravel 11+ Command class
+    // defines a `public function fail()` itself — overriding it with
+    // a private of the same name throws a fatal at autoload time
+    // and aborts `composer dump-autoload`.
 
     private function section(string $title): void
     {
         $this->line("  <fg=cyan>{$title}</>");
     }
 
-    private function pass(string $msg): void
+    private function reportPass(string $msg): void
     {
         $this->line("    <fg=green>✓</> {$msg}");
     }
 
-    private function warn_(string $msg): void
+    private function reportWarn(string $msg): void
     {
         $this->line("    <fg=yellow>⚠</> {$msg}");
         $this->warnings++;
     }
 
-    private function fail(string $msg): void
+    private function reportFail(string $msg): void
     {
         $this->line("    <fg=red>✗</> {$msg}");
         $this->failures++;
