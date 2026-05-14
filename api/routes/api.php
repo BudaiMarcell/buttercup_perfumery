@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\SitemapController;
@@ -57,6 +58,13 @@ Route::get('/products/{slug}',   [ProductController::class, 'show']);
 // state so the UI can mark out-of-stock items.
 Route::post('/products/check-stock', [ProductController::class, 'checkStock'])
     ->middleware('throttle:60,1');
+
+// Coupon code validation. Called by the checkout page's "Apply" button.
+// Public + throttled — server-side re-validation also runs at order
+// placement, so this is purely a UX shortcut for showing the discount
+// before the user hits "Place Order".
+Route::post('/coupons/validate', [CouponController::class, 'validateCode'])
+    ->middleware('throttle:30,1');
 
 // Newsletter signup — public, throttled tighter than the analytics
 // endpoints because each call writes a row.

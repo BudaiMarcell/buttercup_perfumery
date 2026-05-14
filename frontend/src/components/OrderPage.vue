@@ -25,12 +25,15 @@
               <span class="step-num">1</span> Contact Information
             </h3>
             <div class="row g-3">
-              <div class="col-6">
+              <!-- col-12 col-sm-6 instead of plain col-6: first+last name
+                   stack vertically below 576px (small phones) so neither
+                   gets cramped under 160px wide. -->
+              <div class="col-12 col-sm-6">
                 <label class="form-label-custom">First name</label>
                 <input type="text" class="form-input w-100" placeholder="Sanyi" v-model="form.firstName" :class="{ 'input-error': errors.firstName }" />
                 <p class="field-error" v-if="errors.firstName">{{ errors.firstName }}</p>
               </div>
-              <div class="col-6">
+              <div class="col-12 col-sm-6">
                 <label class="form-label-custom">Last name</label>
                 <input type="text" class="form-input w-100" placeholder="Kovács" v-model="form.lastName" :class="{ 'input-error': errors.lastName }" />
                 <p class="field-error" v-if="errors.lastName">{{ errors.lastName }}</p>
@@ -381,6 +384,12 @@ export default {
       couponCode: '',
       couponMsg: '',
       couponValid: false,
+      // Filled by applyCoupon() from the /coupons/validate response.
+      // Read by the `discount` computed property. Defaults are safe
+      // because we only read these when couponValid === true.
+      couponDiscountType:  'percentage',
+      couponDiscountValue: 0,
+      applyingCoupon: false,
       submitting: false,
       submitError: '',
 
@@ -414,7 +423,15 @@ export default {
       return this.shippingOptions.find(o => o.id === this.form.shipping) || this.shippingOptions[0];
     },
     discount() {
-      return this.couponValid ? Math.round(this.cartTotal * 0.1) : 0;
+      if (!this.couponValid) return 0;
+      // Apply the actual discount type/value returned by the API,
+      // not a hardcoded 10%. Percentage gets rounded so the displayed
+      // total stays whole-euro. Fixed-amount is capped at cartTotal
+      // so a 100 Ft discount on a 50 Ft cart can't go negative.
+      if (this.couponDiscountType === 'percentage') {
+        return Math.round(this.cartTotal * (this.couponDiscountValue / 100));
+      }
+      return Math.min(Math.round(this.couponDiscountValue), this.cartTotal);
     },
     orderTotal() {
       return this.cartTotal - this.discount + this.selectedShipping.price;
@@ -527,14 +544,50 @@ export default {
       if (v.length >= 3) v = v.substring(0, 2) + ' / ' + v.substring(2);
       this.form.cardExpiry = v;
     },
-    applyCoupon() {
-      if (!this.couponCode.trim()) return;
-      if (this.couponCode.trim().toUpperCase() === 'BUTTERCUP10') {
-        this.couponValid = true;
-        this.couponMsg = '10% discount applied!';
-      } else {
+    async applyCoupon() {
+      const code = this.couponCode.trim();
+      if (!code) return;
+      if (this.applyingCoupon) return;
+
+      this.applyingCoupon = true;
+      this.couponMsg = '';
+
+      try {
+        const res = await fetch(`${getApiBase()}/coupons/validate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept:         'application/json',
+          },
+          body: JSON.stringify({ code }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 429) {
+          this.couponValid = false;
+          this.couponMsg = 'Túl sok próbálkozás — várj egy percet.';
+          return;
+        }
+        if (!res.ok) {
+          this.couponValid = false;
+          this.couponMsg = data?.message || 'Could not validate the coupon.';
+          return;
+        }
+
+        if (data.valid) {
+          this.couponValid         = true;
+          this.couponDiscountType  = data.discount_type;
+          this.couponDiscountValue = Number(data.discount_value) || 0;
+          this.couponMsg           = data.message || 'Discount applied!';
+        } else {
+          this.couponValid = false;
+          this.couponMsg   = data.message || 'Invalid or expired code.';
+        }
+      } catch {
         this.couponValid = false;
-        this.couponMsg = 'Invalid or expired code.';
+        this.couponMsg = 'Network error — please try again.';
+      } finally {
+        this.applyingCoupon = false;
       }
     },
     validate() {
